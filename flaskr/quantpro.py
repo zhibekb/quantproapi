@@ -9,12 +9,11 @@ from lib.optiontype import OptionType
 
 import numpy as np
 
-
-app = Flask(__name__)
-CORS(app)
-api = Api(app)
-
 import yfinance as yf
+
+server = Flask(__name__)
+CORS(server)
+api = Api(server)
 
 
 class EuropeanOptionCalculator(Resource):
@@ -136,3 +135,5 @@ api.add_resource(TickerData, "/symbol/<ticker>")
 api.add_resource(VolatilityCalculator, "/symbol/volatility/<ticker>")
 api.add_resource(BlackSholesCalculator, "/option/calculator/black-scholes")
 
+if __name__ == "__main__":
+    server.run(debug=True)
