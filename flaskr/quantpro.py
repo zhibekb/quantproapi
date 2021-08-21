@@ -48,7 +48,7 @@ class VolatilityCalculator(Resource):
         return {"volatility": calculator.calculate_volatility(stock_price)}
 
 
-class BlackSholesCalculator(Resource):
+class BlackScholesCalculator(Resource):
     parser = reqparse.RequestParser()
 
     parser.add_argument("strikePrice")
@@ -60,7 +60,7 @@ class BlackSholesCalculator(Resource):
 
     def _calculate(
         self,
-        optionType,
+        option_type,
         volatility,
         underlying_price,
         strike_price,
@@ -69,7 +69,7 @@ class BlackSholesCalculator(Resource):
         dividend_yield,
     ):
         option_price = calculator.black_scholes(
-            optionType,
+            option_type,
             volatility,
             underlying_price,
             strike_price,
@@ -79,7 +79,7 @@ class BlackSholesCalculator(Resource):
         )
 
         delta, gamma, theta, vega, rho = calculator.greeks(
-            optionType,
+            option_type,
             volatility,
             underlying_price,
             strike_price,
@@ -94,11 +94,11 @@ class BlackSholesCalculator(Resource):
             "gamma": gamma,
             "theta": theta,
             "vega": vega,
-            "rho": rho,
+            "rho": rho
         }
 
     def post(self):
-        args = BlackSholesCalculator.parser.parse_args()
+        args = BlackScholesCalculator.parser.parse_args()
 
         volatility = float(args["volatility"]) / 100
         underlying_price = float(args["underlyingPrice"])
@@ -106,6 +106,16 @@ class BlackSholesCalculator(Resource):
         interest_rate = float(args["interestRate"]) / 100
         tenor = float(args["tenor"])
         dividend_yield = float(args["dividendYield"]) / 100
+
+        black_scholes_plot = calculator.plot_options(
+            volatility,
+            underlying_price,
+            strike_price,
+            interest_rate,
+            tenor,
+            dividend_yield,
+        )
+
 
         return {
             "call": self._calculate(
@@ -126,6 +136,7 @@ class BlackSholesCalculator(Resource):
                 tenor,
                 dividend_yield,
             ),
+            "plot_data": black_scholes_plot
         }
 
 
@@ -133,7 +144,7 @@ api.add_resource(EuropeanOptionCalculator, "/options")
 api.add_resource(AllTickers, "/symbols")
 api.add_resource(TickerData, "/symbol/<ticker>")
 api.add_resource(VolatilityCalculator, "/symbol/volatility/<ticker>")
-api.add_resource(BlackSholesCalculator, "/option/calculator/black-scholes")
+api.add_resource(BlackScholesCalculator, "/option/calculator/black-scholes")
 
 if __name__ == "__main__":
     server.run(debug=True)
