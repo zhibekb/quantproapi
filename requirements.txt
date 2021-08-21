@@ -1,0 +1,7 @@
+flask-cors
+flask-restful
+flask==1.1.2
+gunicorn
+numpy
+scipy
+yfinance
