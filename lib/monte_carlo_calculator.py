@@ -62,9 +62,7 @@ def greeks_fdm(
 
 
 def plot_data(S_0, K, T, r, q, sigma, steps, N):
-    print(S_0, K, T, r, q, sigma, steps, N)
     paths_S_T = monte_carlo_paths(S_0, T, r, q, sigma, steps, N)
-    print(paths_S_T)
 
     call_payoff = np.maximum(paths_S_T[-1] - K, 0)
     put_payoff = np.maximum(K - paths_S_T[-1], 0)

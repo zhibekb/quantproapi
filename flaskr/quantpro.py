@@ -11,6 +11,8 @@ import numpy as np
 
 import yfinance as yf
 
+from flaskr import validation
+
 server = Flask(__name__)
 CORS(server)
 api = Api(server)
@@ -51,14 +53,6 @@ class VolatilityCalculator(Resource):
 
 
 class BlackScholesCalculator(Resource):
-    parser = reqparse.RequestParser()
-
-    parser.add_argument("strikePrice")
-    parser.add_argument("volatility")
-    parser.add_argument("interestRate")
-    parser.add_argument("underlyingPrice")
-    parser.add_argument("tenor")
-    parser.add_argument("dividendYield")
 
     def _calculate(
         self,
@@ -100,7 +94,16 @@ class BlackScholesCalculator(Resource):
         }
 
     def post(self):
-        args = BlackScholesCalculator.parser.parse_args()
+        parser = reqparse.RequestParser(bundle_errors=True)
+
+        parser.add_argument("strikePrice", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("volatility", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("interestRate", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("underlyingPrice", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("tenor", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("dividendYield", required=True, type=validation.non_zero_positive_float)
+
+        args = parser.parse_args()
 
         volatility = float(args["volatility"]) / 100
         underlying_price = float(args["underlyingPrice"])
@@ -142,19 +145,6 @@ class BlackScholesCalculator(Resource):
 
 
 class MonteCarloOptionPriceCalculator(Resource):
-    parser = reqparse.RequestParser()
-
-    parser.add_argument("strikePrice")
-    parser.add_argument("volatility")
-    parser.add_argument("interestRate")
-    parser.add_argument("underlyingPrice")
-    parser.add_argument("tenor")
-    parser.add_argument("dividendYield")
-    parser.add_argument("timeSteps")
-    parser.add_argument("numSimulations")
-    parser.add_argument("deltaPrice")
-    parser.add_argument("deltaVolatility")
-    parser.add_argument("deltaInterestRate")
 
     def _calculate(
         self,
@@ -209,19 +199,34 @@ class MonteCarloOptionPriceCalculator(Resource):
         }
 
     def post(self):
-        args = MonteCarloOptionPriceCalculator.parser.parse_args()
+        parser = reqparse.RequestParser(bundle_errors=True)
 
-        volatility = float(args["volatility"]) / 100
-        underlying_price = float(args["underlyingPrice"])
-        strike_price = float(args["strikePrice"])
-        interest_rate = float(args["interestRate"]) / 100
-        tenor = float(args["tenor"])
-        dividend_yield = float(args["dividendYield"]) / 100
-        time_steps = int(args["timeSteps"])
-        num_simulations = int(args["numSimulations"])
-        delta_price = float(args["deltaPrice"])
-        delta_volatility = float(args["deltaVolatility"])
-        delta_interest_rate = float(args["deltaInterestRate"])
+        parser.add_argument("strikePrice", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("volatility", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("interestRate", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("underlyingPrice", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("tenor", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("dividendYield", required=True, type=validation.non_zero_positive_float)
+
+        parser.add_argument("timeSteps", required=True, type=validation.positive_int)
+        parser.add_argument("numSimulations", required=True, type=validation.positive_int)
+        parser.add_argument("deltaPrice", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("deltaVolatility", required=True, type=validation.non_zero_positive_float)
+        parser.add_argument("deltaInterestRate", required=True, type=validation.non_zero_positive_float)
+
+        args = parser.parse_args()
+
+        volatility = args["volatility"] / 100
+        underlying_price = args["underlyingPrice"]
+        strike_price = args["strikePrice"]
+        interest_rate = args["interestRate"] / 100
+        tenor = args["tenor"]
+        dividend_yield = args["dividendYield"] / 100
+        time_steps = args["timeSteps"]
+        num_simulations = args["numSimulations"]
+        delta_price = args["deltaPrice"]
+        delta_volatility = args["deltaVolatility"]
+        delta_interest_rate = args["deltaInterestRate"]
 
         params = (
             volatility,
