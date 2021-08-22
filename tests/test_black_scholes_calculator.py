@@ -1,6 +1,6 @@
 import pytest
 
-from lib import calculator
+from lib import black_scholes_calculator
 from lib.optiontype import OptionType
 
 
@@ -11,15 +11,15 @@ def test_calculate_volatility():
 
     stock_price = [125.092575, 124.423584, 124.094070, 124.872902, 123.355186]
 
-    assert pytest.approx(0.00764, abs=0.0001) == calculator.calculate_volatility(
+    assert pytest.approx(0.00764, abs=0.0001) == black_scholes_calculator.calculate_volatility(
         stock_price
     )
 
     # WHEN stock price is constant, volatility is zero
-    assert 0 == calculator.calculate_volatility([3] * 20)
+    assert 0 == black_scholes_calculator.calculate_volatility([3] * 20)
 
     # WHEN for monotinically increasing stock price, volatility is 0.20
-    assert pytest.approx(0.2, abs=0.01) == calculator.calculate_volatility(range(1, 20))
+    assert pytest.approx(0.2, abs=0.01) == black_scholes_calculator.calculate_volatility(range(1, 20))
 
 
 def test_black_sholes():
@@ -30,7 +30,7 @@ def test_black_sholes():
     dividend_yield = 0.56 / 100
     tenor = 1
 
-    assert pytest.approx(0) == calculator.black_scholes(
+    assert pytest.approx(0) == black_scholes_calculator.black_scholes(
         OptionType.CALL,
         volatility,
         underlying_price,
@@ -39,7 +39,7 @@ def test_black_sholes():
         tenor,
         dividend_yield,
     )
-    assert pytest.approx(12.757, abs=0.001) == calculator.black_scholes(
+    assert pytest.approx(12.757, abs=0.001) == black_scholes_calculator.black_scholes(
         OptionType.PUT,
         volatility,
         underlying_price,
@@ -64,7 +64,7 @@ def test_greeks_calculation():
         -0.0020415610674002463,
         7.429362416016048e-27,
         -1.6011992002166293,
-    ) == calculator.greeks(
+    ) == black_scholes_calculator.greeks(
         OptionType.PUT,
         volatility,
         underlying_price,
@@ -80,7 +80,7 @@ def test_greeks_calculation():
         -6.791853657917837e-30,
         7.429362416016048e-27,
         6.742599946009795e-28,
-    ) == calculator.greeks(
+    ) == black_scholes_calculator.greeks(
         OptionType.CALL,
         volatility,
         underlying_price,
